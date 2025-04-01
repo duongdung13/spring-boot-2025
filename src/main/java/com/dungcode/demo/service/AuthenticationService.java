@@ -1,30 +1,26 @@
-package com.example.api.demo.spring.boot.service;
+package com.dungcode.demo.serrvice;
 
-import com.example.api.demo.spring.boot.common.ApiResponse;
-import com.example.api.demo.spring.boot.common.SuccessResponse;
-import com.example.api.demo.spring.boot.dto.request.AuthenticationRequest;
-import com.example.api.demo.spring.boot.dto.request.IntrospectRequest;
-import com.example.api.demo.spring.boot.dto.response.AuthenticationResponse;
-import com.example.api.demo.spring.boot.dto.response.IntrospectResponse;
-import com.example.api.demo.spring.boot.entity.User;
-import com.example.api.demo.spring.boot.exception.AppException;
-import com.example.api.demo.spring.boot.exception.ErrorCode;
-import com.example.api.demo.spring.boot.helper.EnvHelper;
-import com.example.api.demo.spring.boot.repository.UserRepository;
+import com.dungcode.demo.common.ApiResponse;
+import com.dungcode.demo.common.SuccessResponse;
+import com.dungcode.demo.dto.request.AuthenticationRequest;
+import com.dungcode.demo.dto.response.AuthenticationResponse;
+import com.dungcode.demo.entity.User;
+import com.dungcode.demo.exception.GlobalExceptionHandler;
+import com.dungcode.demo.repository.UserRepository;
+import com.dungcode.demo.util.EnvHelper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -37,10 +33,10 @@ import java.util.StringJoiner;
 public class AuthenticationService {
     UserRepository userRepository;
 
-    public ApiResponse<?> authenticate(AuthenticationRequest request) {
+    public ApiResponse<AuthenticationResponse> authenticate(AuthenticationRequest request) {
         Optional<User> userOptional = this.userRepository.findByUsername(request.getUsername());
         if (userOptional.isEmpty()) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new GlobalExceptionHandler.NotFoundException("user not found");
         }
         User user = userOptional.get();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -48,7 +44,7 @@ public class AuthenticationService {
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Invalid information");
         }
 
         String token = generateTokenJWT(user);
@@ -82,23 +78,6 @@ public class AuthenticationService {
             System.out.print("Can not create token");
             throw new RuntimeException(e);
         }
-    }
-
-    public ApiResponse<?> introspectToken(IntrospectRequest request) throws JOSEException, ParseException {
-        String token = request.getToken();
-
-        JWSVerifier verifier = new MACVerifier(EnvHelper.getEnv("JWT_SECRET_KEY").getBytes());
-
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        System.out.println("signedJWT " + signedJWT.getPayload().toString());
-
-        Date expiredTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        boolean verified = signedJWT.verify(verifier);
-
-        return new SuccessResponse<>(IntrospectResponse.builder()
-                .valid(verified && expiredTime.after(new Date()))
-                .build());
     }
 
     private String buildScope(User user) {
