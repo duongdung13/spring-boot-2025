@@ -1,4 +1,4 @@
-package com.example.api.demo.spring.boot.entity;
+package com.dungcode.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.example.api.demo.spring.boot.dto.response;
+package com.dungcode.demo.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

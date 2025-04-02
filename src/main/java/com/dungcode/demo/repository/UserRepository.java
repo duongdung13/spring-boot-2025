@@ -1,7 +1,6 @@
-package com.example.api.demo.spring.boot.repository;
+package com.dungcode.demo.repository;
 
-import com.example.api.demo.spring.boot.entity.User;
-import com.example.api.demo.spring.boot.service.UserService;
+import com.dungcode.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

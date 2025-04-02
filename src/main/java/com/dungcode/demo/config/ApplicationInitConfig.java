@@ -1,8 +1,8 @@
-package com.example.api.demo.spring.boot.configuration;
+package com.dungcode.demo.config;
 
-import com.example.api.demo.spring.boot.entity.User;
-import com.example.api.demo.spring.boot.enums.Role;
-import com.example.api.demo.spring.boot.repository.UserRepository;
+import com.dungcode.demo.entity.User;
+import com.dungcode.demo.enums.Role;
+import com.dungcode.demo.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 
 @Configuration
@@ -28,6 +29,9 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("123456"))
+                        .firstName("Duong")
+                        .lastName("Dung")
+                        .dob(LocalDate.parse("1987-04-13"))
                         .roles(roles)
                         .build();
                 userRepository.save(user);

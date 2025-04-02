@@ -1,4 +1,4 @@
-package com.example.api.demo.spring.boot.dto.request;
+package com.dungcode.demo.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
