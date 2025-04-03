@@ -1,11 +1,15 @@
 package com.dungcode.demo.controller;
 
 import com.dungcode.demo.dto.request.AuthenticationRequest;
+import com.dungcode.demo.dto.request.IntrospectRequest;
+import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,9 +26,9 @@ public class AuthenticationController {
         return (authenticationService.authenticate(request)).responseEntity();
     }
 
-//    @PostMapping("/introspect")
-//    ResponseEntity<?> introspectToken(@RequestBody @Valid IntrospectRequest request) throws ParseException, JOSEException {
-//        return (authenticationService.introspectToken(request)).responseEntity();
-//    }
+    @PostMapping("/introspect")
+    ResponseEntity<?> introspectToken(@RequestBody @Valid IntrospectRequest request) throws ParseException, JOSEException {
+        return (authenticationService.introspectToken(request)).responseEntity();
+    }
 
 }

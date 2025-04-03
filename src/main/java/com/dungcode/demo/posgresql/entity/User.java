@@ -1,4 +1,4 @@
-package com.dungcode.demo.entity;
+package com.dungcode.demo.posgresql.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
-package com.dungcode.demo.repository;
+package com.dungcode.demo.posgresql.repository;
 
-import com.dungcode.demo.entity.User;
+import com.dungcode.demo.posgresql.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

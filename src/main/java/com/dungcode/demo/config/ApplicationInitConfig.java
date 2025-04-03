@@ -1,8 +1,8 @@
 package com.dungcode.demo.config;
 
-import com.dungcode.demo.entity.User;
+import com.dungcode.demo.posgresql.entity.User;
 import com.dungcode.demo.enums.Role;
-import com.dungcode.demo.repository.UserRepository;
+import com.dungcode.demo.posgresql.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
