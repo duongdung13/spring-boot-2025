@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-//                                .requestMatchers("/hello").permitAll()
+                                .requestMatchers("/auth/login").permitAll()
                                 .requestMatchers("/hello/**").permitAll()
 //                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated()
@@ -57,9 +57,9 @@ public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(EnvHelper.getEnv("JWT_SECRET_KEY").getBytes(), "HS512");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(EnvHelper.getEnv("JWT_SECRET_KEY").getBytes(), "HS256");
 
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS256).build();
     }
 
     @Bean
