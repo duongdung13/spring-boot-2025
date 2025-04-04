@@ -1,16 +1,19 @@
-package com.dungcode.demo.serrvice;
+package com.dungcode.demo.service;
 
 import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.dto.request.AuthenticationRequest;
+import com.dungcode.demo.dto.request.IntrospectRequest;
 import com.dungcode.demo.dto.response.AuthenticationResponse;
-import com.dungcode.demo.entity.User;
+import com.dungcode.demo.posgresql.entity.User;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
-import com.dungcode.demo.repository.UserRepository;
+import com.dungcode.demo.posgresql.repository.UserRepository;
 import com.dungcode.demo.util.EnvHelper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,9 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -51,6 +56,9 @@ public class AuthenticationService {
 
         return new SuccessResponse<>(AuthenticationResponse.builder()
                 .authenticated(true)
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .token(token)
                 .build());
     }
@@ -87,5 +95,24 @@ public class AuthenticationService {
         }
 
         return stringJoiner.toString();
+    }
+
+    public ApiResponse<?> introspectToken(IntrospectRequest request) throws JOSEException, ParseException {
+        String token = request.getToken();
+
+        JWSVerifier verifier = new MACVerifier(EnvHelper.getEnv("JWT_SECRET_KEY").getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Date expiredTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        boolean verified = signedJWT.verify(verifier);
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("verified", verified);
+        result.put("expiredTime", expiredTime);
+        result.put("payload", signedJWT.getPayload().toJSONObject());
+
+        return new SuccessResponse<>(result);
+
     }
 }

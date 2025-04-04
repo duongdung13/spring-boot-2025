@@ -25,6 +25,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,41 +33,39 @@ import java.util.stream.Collectors;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<?> handleAllException(Exception ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>();
-        ex.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse.toBody());
+    public final ResponseEntity<?> handleAllException(Exception exception, HttpServletRequest request) {
+//        ErrorResponse<?> errorResponse = new ErrorResponse<>();
+//        ex.printStackTrace();
+        //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse.toBody());
+
+        return this.responseHandleError(exception, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //test ok
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse.toBody());
+    public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException exception, HttpServletRequest request) {
+        return this.responseHandleError(exception, request, HttpStatus.NOT_FOUND);
     }
 
+    //test ok
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse.toBody());
+    public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
+        return this.responseHandleError(exception, request, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-
+    //test ok
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public final ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .findFirst()
-                .orElse("Method Argument Not Valid Exception");
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
+    public final ResponseEntity<?> handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+        System.out.println("MethodArgumentNotValidException");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public final ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Not Found Exception", ex));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse.toBody());
+    public final ResponseEntity<?> handleNotFoundException(NotFoundException exception, HttpServletRequest request) {
+        return this.responseHandleError(exception, request, HttpStatus.NOT_FOUND);
     }
 
+    // Custom 1 exception
     public static class NotFoundException extends RuntimeException {
         public NotFoundException(String message) {
             super(message);
@@ -75,6 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public final ResponseEntity<?> handleNullPointerException(NullPointerException ex) {
+        System.out.println("NullPointerException");
         ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Null Pointer Exception", ex));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
     }
@@ -88,6 +88,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<?> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+        System.out.println("MissingServletRequestParameterException");
         ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
     }
@@ -106,9 +107,8 @@ public class GlobalExceptionHandler {
 
     //DataIntegrityViolationException
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Data Integrity Violation Exception", ex));
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse.toBody());
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return this.responseHandleError(ex, request, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -124,9 +124,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConversionFailedException.class)
-    public ResponseEntity<?> handleConversionFailedException(ConversionFailedException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(getCustomMessage("Failed to convert parameter", ex));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
+    public ResponseEntity<?> handleConversionFailedException(ConversionFailedException exception, HttpServletRequest request) {
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -155,6 +154,24 @@ public class GlobalExceptionHandler {
 
         ErrorResponse<?> response = new ErrorResponse<>(messageDefault, 422);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response.toBody());
+    }
+
+    private ResponseEntity<?> responseHandleError(Exception exception, HttpServletRequest request, HttpStatus httpStatus) {
+        ExceptionErrorResponse response = new ExceptionErrorResponse();
+        response.setStatus(httpStatus.value());
+        response.setTimestamp(new Date());
+        response.setPath(request.getRequestURI());
+        response.setMessage(exception.getMessage());
+        response.setError(httpStatus.getReasonPhrase());
+
+        if (exception instanceof MethodArgumentNotValidException) {
+            response.setMessage(((MethodArgumentNotValidException) exception).getBindingResult().getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .findFirst()
+                    .orElse("Method Argument Not Valid Exception"));
+        }
+
+        return new ResponseEntity<>(response, httpStatus);
     }
 
 }
