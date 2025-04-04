@@ -1,6 +1,7 @@
 package com.dungcode.demo.controller;
 
 import com.dungcode.demo.dto.request.PostRequest;
+import com.dungcode.demo.mongodb.model.Post;
 import com.dungcode.demo.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +19,11 @@ public class PostController {
     @PostMapping()
     ResponseEntity<?> create(@RequestBody @Valid PostRequest request) {
         return (postService.create(request)).responseEntity();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Post> getUserById(@PathVariable String id) {
+        Post post = postService.getPostById(id);
+        return ResponseEntity.ok(post);
     }
 }

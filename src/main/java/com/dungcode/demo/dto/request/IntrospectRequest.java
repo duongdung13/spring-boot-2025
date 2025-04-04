@@ -3,8 +3,8 @@ package com.dungcode.demo.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-@Data
+@Getter
 public class IntrospectRequest {
-    @NotNull(message = "token is not null")
+    @NotNull(message = "Token is not null")
     String token;
 }

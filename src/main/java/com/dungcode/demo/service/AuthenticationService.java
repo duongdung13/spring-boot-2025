@@ -1,4 +1,4 @@
-package com.dungcode.demo.serrvice;
+package com.dungcode.demo.service;
 
 import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;

@@ -1,20 +1,14 @@
 package com.dungcode.demo.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
 public class PostRequest {
-    @NotNull(message = "Title is not null")
+    @NotBlank(message = "Title is not blank")
     String title;
 
-    @NotNull(message = "Content is not null")
+    @NotBlank(message = "Content is not blank")
     String content;
 
 }

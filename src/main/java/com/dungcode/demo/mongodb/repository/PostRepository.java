@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface PostRepository extends MongoRepository<Post, String> {
 
     Optional<Post> findFirstById(String id);
+
+
+    Boolean existsPostByTitle(String title);
+
 }
