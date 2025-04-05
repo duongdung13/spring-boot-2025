@@ -186,4 +186,14 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    private String getStringValidation(String acceptLanguageHeader, String key) {
+        try {
+            Locale locale = new Locale(acceptLanguageHeader);
+            ResourceBundle validations = ResourceBundle.getBundle("i18n.messages", locale);
+            return validations.getString(key);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
