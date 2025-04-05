@@ -5,11 +5,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
-
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest implements Serializable {
+public class AuthenticationRequest {
     @NotNull(message = "Username is not null")
     @Size(min = 3, message = "Username must be at least 3 characters long")
     String username;

@@ -1,5 +1,6 @@
 package com.dungcode.demo.mongodb.model;
 
+import com.dungcode.demo.enums.PostType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ public class Post {
     private String title;
 
     private String content;
+
+    private PostType postType;
 
     private Boolean isActive = true;
 
