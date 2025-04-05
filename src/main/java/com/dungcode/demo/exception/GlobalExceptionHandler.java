@@ -6,12 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -25,7 +25,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +37,7 @@ public class GlobalExceptionHandler {
 //        ErrorResponse<?> errorResponse = new ErrorResponse<>();
 //        ex.printStackTrace();
         //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse.toBody());
+        System.out.println("❗❗❗Exception");
 
         return this.responseHandleError(exception, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -44,6 +45,8 @@ public class GlobalExceptionHandler {
     //test ok
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗NoResourceFoundException");
+
         return this.responseHandleError(exception, request, HttpStatus.NOT_FOUND);
     }
 
@@ -157,21 +160,27 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<?> responseHandleError(Exception exception, HttpServletRequest request, HttpStatus httpStatus) {
-        ExceptionErrorResponse response = new ExceptionErrorResponse();
-        response.setStatus(httpStatus.value());
-        response.setTimestamp(new Date());
-        response.setPath(request.getRequestURI());
-        response.setMessage(exception.getMessage());
-        response.setError(httpStatus.getReasonPhrase());
+        System.out.println("responseHandleError" + httpStatus.value());
 
-        if (exception instanceof MethodArgumentNotValidException) {
-            response.setMessage(((MethodArgumentNotValidException) exception).getBindingResult().getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .findFirst()
-                    .orElse("Method Argument Not Valid Exception"));
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Date());
+        response.put("status", httpStatus.value());
+        response.put("path", request.getRequestURI());
+        response.put("error", httpStatus.getReasonPhrase());
+        response.put("message", exception.getMessage());
 
-        return new ResponseEntity<>(response, httpStatus);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
     }
-
+//
+//    private String getStringValidation(String acceptLanguageHeader, String key) {
+//        try {
+//            Locale locale = new Locale(acceptLanguageHeader);
+//            ResourceBundle validations = ResourceBundle.getBundle("i18n.messages", locale);
+//            return validations.getString(key);
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
 }

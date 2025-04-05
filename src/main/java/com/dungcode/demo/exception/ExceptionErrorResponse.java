@@ -1,10 +1,10 @@
 package com.dungcode.demo.exception;
 
-import lombok.Data;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
+@Setter
 public class ExceptionErrorResponse {
     private Date timestamp;
     private int status;
