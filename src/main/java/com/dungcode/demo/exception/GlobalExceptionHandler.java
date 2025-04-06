@@ -6,14 +6,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,7 +26,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,31 +38,33 @@ public class GlobalExceptionHandler {
 //        ErrorResponse<?> errorResponse = new ErrorResponse<>();
 //        ex.printStackTrace();
         //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse.toBody());
+        System.out.println("❗❗❗Exception❗❗❗");
 
         return this.responseHandleError(exception, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    //test ok
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗NoResourceFoundException❗❗❗");
+
         return this.responseHandleError(exception, request, HttpStatus.NOT_FOUND);
     }
 
-    //test ok
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗HttpRequestMethodNotSupportedException❗❗❗");
         return this.responseHandleError(exception, request, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    //test ok
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public final ResponseEntity<?> handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request) {
-        System.out.println("MethodArgumentNotValidException");
+        System.out.println("❗❗❗MethodArgumentNotValidException❗❗❗");
         return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public final ResponseEntity<?> handleNotFoundException(NotFoundException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗NotFoundException❗❗❗");
         return this.responseHandleError(exception, request, HttpStatus.NOT_FOUND);
     }
 
@@ -73,58 +76,59 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public final ResponseEntity<?> handleNullPointerException(NullPointerException ex) {
-        System.out.println("NullPointerException");
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Null Pointer Exception", ex));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
+    public final ResponseEntity<?> handleNullPointerException(NullPointerException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗NullPointerException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(IndexOutOfBoundsException.class)
+    public final ResponseEntity<?> handleIndexOutOfBoundsException(IndexOutOfBoundsException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗IndexOutOfBoundsException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Illegal Argument Exception", ex));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗IllegalArgumentException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<?> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
-        System.out.println("MissingServletRequestParameterException");
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage("Access Denied Exception", ex));
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse.toBody());
+    public ResponseEntity<?> handleMissingServletRequestParameter(MissingServletRequestParameterException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗MissingServletRequestParameterException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<?> handleMaxSizeException(MaxUploadSizeExceededException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(errorResponse.toBody());
+    public ResponseEntity<?> handleMaxSizeException(MaxUploadSizeExceededException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗MaxUploadSizeExceededException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
     //DataIntegrityViolationException
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return this.responseHandleError(ex, request, HttpStatus.CONFLICT);
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗DataIntegrityViolationException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<?> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(errorResponse.toBody());
+    public ResponseEntity<?> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗HttpMediaTypeNotSupportedException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException ex) {
-        ErrorResponse<?> errorResponse = new ErrorResponse<>(this.getCustomMessage(null, ex));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse.toBody());
+    public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗HttpMediaTypeNotSupportedException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConversionFailedException.class)
     public ResponseEntity<?> handleConversionFailedException(ConversionFailedException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗ConversionFailedException❗❗❗");
         return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
     }
 
@@ -145,33 +149,56 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception, HttpServletRequest request) {
-        String messageDefault = "Incorrect JSON syntax or data type error";
-        Throwable cause = exception.getCause();
-
-        if (cause instanceof InvalidFormatException ife) {
-            messageDefault = "Invalid value: " + ife.getValue();
-        }
-
-        ErrorResponse<?> response = new ErrorResponse<>(messageDefault, 422);
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response.toBody());
+        System.out.println("❗❗❗HttpMessageNotReadableException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private ResponseEntity<?> responseHandleError(Exception exception, HttpServletRequest request, HttpStatus httpStatus) {
-        ExceptionErrorResponse response = new ExceptionErrorResponse();
-        response.setStatus(httpStatus.value());
-        response.setTimestamp(new Date());
-        response.setPath(request.getRequestURI());
-        response.setMessage(exception.getMessage());
-        response.setError(httpStatus.getReasonPhrase());
+        System.out.println("responseHandleError : " + httpStatus.value());
 
-        if (exception instanceof MethodArgumentNotValidException) {
-            response.setMessage(((MethodArgumentNotValidException) exception).getBindingResult().getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .findFirst()
-                    .orElse("Method Argument Not Valid Exception"));
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Date());
+        response.put("status", httpStatus.value());
+        response.put("path", request.getRequestURI());
+        response.put("error", httpStatus.getReasonPhrase());
+        response.put("message", exception.getMessage());
+
+        if (exception instanceof MethodArgumentNotValidException manve) {
+            List<FieldError> fieldErrors = manve.getBindingResult().getFieldErrors();
+            String typeError = Objects.requireNonNull(fieldErrors.get(0).getCode());
+            String acceptLanguageHeader = request.getHeader("lang");
+            String field = fieldErrors.get(0).getField();
+            String validation = this.getStringValidation(acceptLanguageHeader, typeError);
+
+            if (validation == null) {
+                response.put("message", field + " " + manve.getAllErrors().get(0).getDefaultMessage());
+            } else {
+                response.put("message", Objects.requireNonNull(this.getStringValidation(acceptLanguageHeader, typeError)).replace(":attribute", field));
+            }
         }
 
-        return new ResponseEntity<>(response, httpStatus);
+        if (exception instanceof HttpMessageNotReadableException) {
+            Throwable cause = exception.getCause();
+            if (cause instanceof InvalidFormatException ife) {
+                response.put("message", "Invalid value: " + ife.getValue());
+            } else {
+                response.put("message", "Invalid value");
+            }
+        }
+
+        return ResponseEntity.status(httpStatus.value())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+    private String getStringValidation(String acceptLanguageHeader, String key) {
+        try {
+            Locale locale = new Locale(acceptLanguageHeader);
+            ResourceBundle validations = ResourceBundle.getBundle("i18n.messages", locale);
+            return validations.getString(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.dungcode.demo.service;
 import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.dto.request.PostRequest;
+import com.dungcode.demo.enums.PostType;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
 import com.dungcode.demo.mongodb.model.Post;
 import com.dungcode.demo.mongodb.repository.PostRepository;
@@ -25,12 +26,13 @@ public class PostService {
         Post post = new Post();
         post.setTitle(dto.getTitle().trim());
         post.setContent(dto.getContent());
+        post.setPostType(PostType.valueOf(dto.getPostType()));
 
         return new SuccessResponse<>(postRepository.save(post));
     }
 
-    public Post getPostById(String id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("Post not found"));
+    public ApiResponse<?> getPostById(String id) {
+        return new SuccessResponse<>(postRepository.findById(id)
+                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("Post not found")));
     }
 }

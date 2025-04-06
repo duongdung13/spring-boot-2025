@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +23,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        errorResponse.put("message", "Unauthorized");
-
-        System.out.println("errorResponse " + errorResponse.toString());
+        errorResponse.put("timestamp", new Date().toInstant().toString());
+        errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
+        errorResponse.put("path", request.getRequestURI());
+        errorResponse.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        errorResponse.put("message", HttpStatus.UNAUTHORIZED.getReasonPhrase());
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         response.flushBuffer();
