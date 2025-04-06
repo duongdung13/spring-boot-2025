@@ -165,10 +165,15 @@ public class GlobalExceptionHandler {
 
         if (exception instanceof MethodArgumentNotValidException manve) {
             List<FieldError> fieldErrors = manve.getBindingResult().getFieldErrors();
-            if (!fieldErrors.isEmpty()) {
-                response.put("message", manve.getAllErrors().get(0).getDefaultMessage());
+            String typeError = Objects.requireNonNull(fieldErrors.get(0).getCode());
+            String acceptLanguageHeader = request.getHeader("lang");
+            String field = fieldErrors.get(0).getField();
+            String validation = this.getStringValidation(acceptLanguageHeader, typeError);
+
+            if (validation == null) {
+                response.put("message", field + " " + manve.getAllErrors().get(0).getDefaultMessage());
             } else {
-                response.put("message", manve.getAllErrors().get(0).getDefaultMessage());
+                response.put("message", Objects.requireNonNull(this.getStringValidation(acceptLanguageHeader, typeError)).replace(":attribute", field));
             }
         }
 
@@ -184,6 +189,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(httpStatus.value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);
+    }
+
+    private String getStringValidation(String acceptLanguageHeader, String key) {
+        try {
+            Locale locale = new Locale(acceptLanguageHeader);
+            ResourceBundle validations = ResourceBundle.getBundle("i18n.messages", locale);
+            return validations.getString(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
