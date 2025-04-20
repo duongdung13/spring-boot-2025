@@ -75,6 +75,19 @@ public class GlobalExceptionHandler {
         }
     }
 
+
+    @ExceptionHandler(BadRequestCustomException.class)
+    public final ResponseEntity<?> handleBadRequestCustomException(BadRequestCustomException exception, HttpServletRequest request) {
+        System.out.println("❗❗❗BadRequestCustomException❗❗❗");
+        return this.responseHandleError(exception, request, HttpStatus.BAD_REQUEST);
+    }
+
+    public static class BadRequestCustomException extends RuntimeException {
+        public BadRequestCustomException(String message) {
+            super(message);
+        }
+    }
+
     @ExceptionHandler(NullPointerException.class)
     public final ResponseEntity<?> handleNullPointerException(NullPointerException exception, HttpServletRequest request) {
         System.out.println("❗❗❗NullPointerException❗❗❗");
