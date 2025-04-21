@@ -1,6 +1,7 @@
 package com.dungcode.demo.controller;
 
 import com.dungcode.demo.dto.request.UserCreateRequest;
+import com.dungcode.demo.dto.request.UserUpdateRequest;
 import com.dungcode.demo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,15 +46,14 @@ public class UserController {
         return (userService.getUsers()).responseEntity();
     }
 
-//    @PutMapping("/{userId}")
-//    ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
-//        return (userService.updateUser(userId, request)).responseEntity();
-//    }
+    @PutMapping("/{userId}")
+    ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody @Valid UserUpdateRequest request) {
+        return (userService.updateUser(userId, request)).responseEntity();
+    }
 
-//    @DeleteMapping("/{userId}")
-//    String deleteUser(@PathVariable String userId) {
-//        userService.deleteUser(userId);
-//        return "User has been deleted";
-//    }
+    @DeleteMapping("/{userId}")
+    ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+        return (userService.deleteUser(userId)).responseEntity();
+    }
 }
 

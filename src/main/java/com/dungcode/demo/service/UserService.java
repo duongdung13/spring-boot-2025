@@ -3,6 +3,7 @@ package com.dungcode.demo.service;
 import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.dto.request.UserCreateRequest;
+import com.dungcode.demo.dto.request.UserUpdateRequest;
 import com.dungcode.demo.dto.response.UserResponse;
 import com.dungcode.demo.enums.Role;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
@@ -78,19 +79,23 @@ public class UserService {
     }
 
 
-//    public ApiResponse<?> updateUser(String userId, UserUpdateRequest request) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new BadRequestException("abc"));
-//
-//        userMapper.updateUser(user, request);
-//
-//        return new SuccessResponse<>(userRepository.save(user));
-//    }
+    public ApiResponse<?> updateUser(Long userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("User not found"));
 
+        userMapper.updateUser(user, request);
 
-//    public void deleteUser(String userId) {
-//        userRepository.deleteById(userId);
-//    }
+        return new SuccessResponse<>(this.userMapper.toUserResponse(userRepository.save(user)));
+    }
+
+    public ApiResponse<?> deleteUser(Long userId) {
+        return new SuccessResponse<>(userRepository.findById(userId)
+                .map(user -> {
+                    userRepository.delete(user);
+                    return "Delete success";
+                })
+                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("User not found")));
+    }
 
 
 }

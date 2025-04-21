@@ -1,9 +1,11 @@
 package com.dungcode.demo.mapper;
 
 import com.dungcode.demo.dto.request.UserCreateRequest;
+import com.dungcode.demo.dto.request.UserUpdateRequest;
 import com.dungcode.demo.dto.response.UserResponse;
 import com.dungcode.demo.posgresql.entity.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -11,5 +13,5 @@ public interface UserMapper {
 
     UserResponse toUserResponse(User user);
 
-//    void updateUser(@MappingTarget User user, UserUpdateRequest request);
+    void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }
