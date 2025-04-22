@@ -1,25 +1,28 @@
-package com.dungcode.demo.posgresql.entity;
+package com.dungcode.demo.dto.request;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "users")
-public class User extends AbstractEntity {
-    String username;
+public class UserUpdateRequest {
     String password;
+
+    @NotNull()
     String firstName;
+
+    @NotNull()
     String lastName;
+
+    @NotNull()
     String address;
+
+    @NotNull()
     LocalDate dob;
-    Set<String> roles;
 }
