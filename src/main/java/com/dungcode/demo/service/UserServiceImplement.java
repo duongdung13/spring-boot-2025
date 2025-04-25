@@ -111,4 +111,10 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("User not found")));
     }
 
+    @Override
+    public ApiResponse<?> customQuery() {
+//        return new SuccessResponse<>(userRepository.customQueryFindByUsername("dung01"));
+        return new SuccessResponse<>(userRepository.customQueryFindActiveUsersByRole(Role.USER.name()));
+    }
+
 }

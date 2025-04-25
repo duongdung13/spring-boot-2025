@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -20,5 +21,6 @@ public class UserResponse {
     String address;
     LocalDate dob;
     Set<String> roles;
+    private List<AddressResponse> addresses;
 
 }
