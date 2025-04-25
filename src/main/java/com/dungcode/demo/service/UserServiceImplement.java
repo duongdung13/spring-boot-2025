@@ -4,12 +4,15 @@ import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.dto.request.UserCreateRequest;
 import com.dungcode.demo.dto.request.UserUpdateRequest;
+import com.dungcode.demo.dto.response.PageResponse;
 import com.dungcode.demo.enums.Role;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
 import com.dungcode.demo.mapper.UserMapper;
 import com.dungcode.demo.posgresql.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -64,18 +67,31 @@ public class UserServiceImplement implements UserService {
         return new SuccessResponse<>(this.userMapper.toUserResponse(user));
     }
 
-
-    public ApiResponse<?> getUsers() {
+    public ApiResponse<?> getUsers(int page, int size) {
         var userAuth = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("getName " + userAuth.getName());
         userAuth.getAuthorities().forEach(grantedAuthority -> {
             System.out.println("grantedAuthority: " + grantedAuthority.getAuthority());
         });
 
-        return new SuccessResponse<>(userRepository.findAll().stream().map(this.userMapper::toUserResponse
-        ).toList());
-    }
+        var pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        var pageResult = userRepository.findAll(pageable);
 
+        var content = pageResult.getContent().stream()
+                .map(this.userMapper::toUserResponse)
+                .toList();
+
+        var response = new PageResponse<>(
+                content,
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.isLast()
+        );
+
+        return new SuccessResponse<>(response);
+    }
 
     public ApiResponse<?> updateUser(Long userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)

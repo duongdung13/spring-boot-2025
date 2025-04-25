@@ -11,7 +11,7 @@ public interface UserService {
 
     public ApiResponse<?> getUser(Long id);
 
-    public ApiResponse<?> getUsers();
+    public ApiResponse<?> getUsers(int page, int size);
 
     public ApiResponse<?> updateUser(Long userId, UserUpdateRequest request);
 

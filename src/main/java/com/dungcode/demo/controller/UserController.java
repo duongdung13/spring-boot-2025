@@ -38,12 +38,13 @@ public class UserController {
         return (userService.getUser(userId)).responseEntity();
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    @Operation(summary = "Lấy thông tin người dùng", description = "API này trả về thông tin của một người dùng theo ID")
-    public ResponseEntity<?> getUsers() {
-        return (userService.getUsers()).responseEntity();
+    @Operation(summary = "Lấy danh sách người dùng", description = "API này trả về danh sách người dùng có phân trang")
+    public ResponseEntity<?> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return (userService.getUsers(page, size)).responseEntity();
     }
 
     @PutMapping("/{userId}")
