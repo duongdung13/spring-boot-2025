@@ -18,4 +18,6 @@ public interface UserService {
     public ApiResponse<?> deleteUser(Long userId);
 
     public ApiResponse<?> customQuery();
+
+    public ApiResponse<?> criteriaQuery();
 }

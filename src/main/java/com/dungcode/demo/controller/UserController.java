@@ -61,5 +61,10 @@ public class UserController {
     ResponseEntity<?> customQuery() {
         return (userService.customQuery()).responseEntity();
     }
+
+    @GetMapping("/criteria-query")
+    ResponseEntity<?> criteriaQuery() {
+        return (userService.criteriaQuery()).responseEntity();
+    }
 }
 
