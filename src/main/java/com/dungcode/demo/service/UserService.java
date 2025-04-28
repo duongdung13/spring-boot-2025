@@ -16,4 +16,8 @@ public interface UserService {
     public ApiResponse<?> updateUser(Long userId, UserUpdateRequest request);
 
     public ApiResponse<?> deleteUser(Long userId);
+
+    public ApiResponse<?> customQuery();
+
+    public ApiResponse<?> criteriaQuery();
 }

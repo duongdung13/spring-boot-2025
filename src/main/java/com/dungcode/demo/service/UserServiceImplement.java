@@ -9,6 +9,12 @@ import com.dungcode.demo.enums.Role;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
 import com.dungcode.demo.mapper.UserMapper;
 import com.dungcode.demo.posgresql.entity.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.dungcode.demo.posgresql.repository.UserRepository;
 
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -28,6 +33,8 @@ public class UserServiceImplement implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public ApiResponse<?> createUser(UserCreateRequest request) {
@@ -109,6 +116,35 @@ public class UserServiceImplement implements UserService {
                     return "Delete success";
                 })
                 .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("User not found")));
+    }
+
+    @Override
+    public ApiResponse<?> customQuery() {
+//        return new SuccessResponse<>(userRepository.customQueryFindByUsername("dung01"));
+        //return new SuccessResponse<>(userRepository.customQueryFindActiveUsersByRole(Role.USER.name()));
+        return new SuccessResponse<>(userRepository.findAllByUsername("dung02"));
+    }
+
+    @Override
+    public ApiResponse<?> criteriaQuery() {
+        String name = "dung";
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = cb.createQuery(User.class);
+        Root<User> user = query.from(User.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (name != null) {
+            predicates.add(cb.like(cb.lower(user.get("username")), "%" + name.toLowerCase() + "%"));
+        }
+
+        if (!predicates.isEmpty()) {
+            query.where(predicates.toArray(new Predicate[0]));
+        }
+        query.orderBy(cb.asc(user.get("username")));
+
+        return new SuccessResponse<>(entityManager.createQuery(query).getResultList());
     }
 
 }

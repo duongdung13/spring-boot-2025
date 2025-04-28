@@ -56,5 +56,15 @@ public class UserController {
     ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         return (userService.deleteUser(userId)).responseEntity();
     }
+
+    @GetMapping("/custom-query")
+    ResponseEntity<?> customQuery() {
+        return (userService.customQuery()).responseEntity();
+    }
+
+    @GetMapping("/criteria-query")
+    ResponseEntity<?> criteriaQuery() {
+        return (userService.criteriaQuery()).responseEntity();
+    }
 }
 
