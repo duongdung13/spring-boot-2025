@@ -1,13 +1,19 @@
 package com.dungcode.demo.controller;
 
+import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.posgresql.entity.Product;
 import com.dungcode.demo.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
+@Slf4j
+@Tag(name = "Products Controller", description = "Quản lý danh sách sản phẩm")
 public class ProductController {
 
     private final ProductService productService;
@@ -18,32 +24,18 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable Long id) {
-        // First call will be slow (not cached)
-        // Subsequent calls with the same ID will be fast (cached)
-        Product product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<?> getProduct(@PathVariable Long id) {
+        return (new SuccessResponse<>((productService.getProductById(id)))).responseEntity();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        // Updates the product and refreshes the cache
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
         product.setId(id);
-        Product updatedProduct = productService.updateProduct(product);
-        return ResponseEntity.ok(updatedProduct);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        // Removes the product from the cache
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+        return (new SuccessResponse<>((productService.updateProduct(id, product)))).responseEntity();
     }
 
     @DeleteMapping("/cache/clear")
-    public ResponseEntity<Void> clearCache() {
-        // Clears the entire products cache
-        productService.clearProductCache();
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> clearCache() {
+        return (productService.clearProductCache()).responseEntity();
     }
 }
