@@ -38,4 +38,15 @@ public class ProductController {
     public ResponseEntity<?> clearCache() {
         return (productService.clearProductCache()).responseEntity();
     }
+
+    @GetMapping("/{id}/set-cache")
+    public ResponseEntity<?> setCache(@PathVariable Long id) {
+        return (productService.setCache(id)).responseEntity();
+    }
+
+    @GetMapping("/{id}/get-cache")
+    public ResponseEntity<?> getCache(@PathVariable Long id) {
+        return (productService.getCache(id)).responseEntity();
+    }
+
 }

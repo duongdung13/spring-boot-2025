@@ -9,4 +9,8 @@ public interface ProductService {
     public Product updateProduct(Long id, Product request);
 
     public ApiResponse<?> clearProductCache();
+
+    public ApiResponse<?> setCache(Long id);
+
+    public ApiResponse<?> getCache(Long id);
 }
