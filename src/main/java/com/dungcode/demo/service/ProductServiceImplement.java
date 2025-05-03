@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductServiceImplement implements ProductService {
     private final ProductRepository productRepository;
+    private final CacheService cacheService;
 
     @Override
     @Cacheable(value = "products", key = "#id")
@@ -36,5 +37,27 @@ public class ProductServiceImplement implements ProductService {
     public ApiResponse<?> clearProductCache() {
         log.info("Clearing entire product cache");
         return new SuccessResponse<>(true);
+    }
+
+    @Override
+    public ApiResponse<?> setCache(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        this.cacheService.setCache("products::" + id, product, 60);
+        log.info("Setting cache for product with id: {}", id);
+        return new SuccessResponse<>(true);
+    }
+
+    @Override
+    public ApiResponse<?> getCache(Long id) {
+        Product product = (Product) this.cacheService.getCache("products::" + id);
+
+        if (product == null) {
+            log.info("Cache miss for product with id: {}", id);
+            return new SuccessResponse<>(false, "Cache miss");
+        }
+
+        return new SuccessResponse<>(product);
     }
 }
