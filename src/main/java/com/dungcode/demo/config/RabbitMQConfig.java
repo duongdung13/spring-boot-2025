@@ -11,23 +11,57 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE_NAME = "demo_queue";
-    public static final String EXCHANGE_NAME = "demo_exchange";
-    public static final String ROUTING_KEY = "demo_routing_key";
+    // Exchange names
+    public static final String INVENTORY_EXCHANGE = "inventory.exchange";
+    public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
 
+    // Queue names
+    public static final String INVENTORY_QUEUE = "inventory.queue";
+    public static final String NOTIFICATION_QUEUE = "notification.queue";
+
+    // Routing keys
+    public static final String ORDER_TO_INVENTORY_ROUTING_KEY = "order.inventory";
+    public static final String ORDER_TO_NOTIFICATION_ROUTING_KEY = "order.notification";
+
+    // Inventory Exchange
     @Bean
-    public Queue queue() {
-        return new Queue(QUEUE_NAME);
+    public DirectExchange inventoryExchange() {
+        return new DirectExchange(INVENTORY_EXCHANGE);
+    }
+
+    // Notification Exchange
+    @Bean
+    public DirectExchange notificationExchange() {
+        return new DirectExchange(NOTIFICATION_EXCHANGE);
+    }
+
+    // Inventory Queue
+    @Bean
+    public Queue inventoryQueue() {
+        return new Queue(INVENTORY_QUEUE, true);
+    }
+
+    // Notification Queue
+    @Bean
+    public Queue notificationQueue() {
+        return new Queue(NOTIFICATION_QUEUE, true);
+    }
+
+    // Bindings
+    @Bean
+    public Binding inventoryBinding(Queue inventoryQueue, DirectExchange inventoryExchange) {
+        return BindingBuilder
+                .bind(inventoryQueue)
+                .to(inventoryExchange)
+                .with(ORDER_TO_INVENTORY_ROUTING_KEY);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE_NAME);
-    }
-
-    @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+    public Binding notificationBinding(Queue notificationQueue, DirectExchange notificationExchange) {
+        return BindingBuilder
+                .bind(notificationQueue)
+                .to(notificationExchange)
+                .with(ORDER_TO_NOTIFICATION_ROUTING_KEY);
     }
 
     @Bean
