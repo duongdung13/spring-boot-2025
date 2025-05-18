@@ -21,5 +21,6 @@ public class RequestLog {
     private String requestBody;
     private Integer responseStatus;
     private String responseBody;
+    private String error;
     private LocalDateTime createdAt;
 }

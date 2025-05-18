@@ -27,8 +27,11 @@ import java.util.Map;
 public class LoggingFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
-    @Autowired
-    private RequestLogRepository requestLogRepository;
+    private final RequestLogRepository requestLogRepository;
+
+    public LoggingFilter(RequestLogRepository requestLogRepository) {
+        this.requestLogRepository = requestLogRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
