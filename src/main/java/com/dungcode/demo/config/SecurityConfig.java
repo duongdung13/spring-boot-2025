@@ -1,6 +1,6 @@
 package com.dungcode.demo.config;
 
-
+import com.dungcode.demo.mongodb.repository.RequestLogRepository;
 import com.dungcode.demo.util.EnvHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,11 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final RequestLogRepository requestLogRepository;
+
+    public SecurityConfig(RequestLogRepository requestLogRepository) {
+        this.requestLogRepository = requestLogRepository;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -35,7 +40,7 @@ public class SecurityConfig {
                 oauth2.jwt(jwtConfigurer ->
                         jwtConfigurer.decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                ).authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                ).authenticationEntryPoint(new JwtAuthenticationEntryPoint(requestLogRepository))
         );
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
