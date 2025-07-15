@@ -1,6 +1,7 @@
 package com.dungcode.demo.controller;
 
 import com.dungcode.demo.common.SuccessResponse;
+import com.dungcode.demo.dto.request.ProductCreateRequest;
 import com.dungcode.demo.posgresql.entity.Product;
 import com.dungcode.demo.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,11 @@ public class ProductController {
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateRequest product) {
+        return (new SuccessResponse<>((productService.createProduct(product)))).responseEntity();
     }
 
     @GetMapping("/{id}")
