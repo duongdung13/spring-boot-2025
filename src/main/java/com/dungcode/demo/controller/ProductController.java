@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
+import static reactor.core.publisher.Mono.delay;
+
 @RestController
 @RequestMapping("/products")
 @Slf4j
@@ -55,4 +59,13 @@ public class ProductController {
         return (productService.getCache(id)).responseEntity();
     }
 
+    @PostMapping("/purchase")
+    public ResponseEntity<?> purchaseProduct(@RequestParam Long productId) {
+        try {
+            Thread.sleep(5000); // Delay 5 giây
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return productService.purchaseProduct(productId).responseEntity();
+    }
 }

@@ -33,7 +33,7 @@ public class ProductServiceImplement implements ProductService {
                 .build();
         Product savedProduct = productRepository.save(product);
 
-        if( request.getName().equals("Iphone 11")) {
+        if (request.getName().equals("Iphone 11")) {
             throw new RuntimeException("Iphone 11 is not allowed to be created");
         }
 
@@ -88,5 +88,20 @@ public class ProductServiceImplement implements ProductService {
         }
 
         return new SuccessResponse<>(product);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<?> purchaseProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        if (product.getStock() > 0) {
+            product.setStock(product.getStock() - 1);
+            productRepository.save(product);
+            log.info("Product purchased successfully, remaining stock: {}", product.getStock());
+            return new SuccessResponse<>("Mua thành công");
+        } else {
+            log.warn("Product out of stock for productId: {}", productId);
+            return new SuccessResponse<>("Hết hàng");
+        }
     }
 }

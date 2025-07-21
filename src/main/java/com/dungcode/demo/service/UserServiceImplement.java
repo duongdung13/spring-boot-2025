@@ -23,7 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.dungcode.demo.posgresql.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -146,5 +148,25 @@ public class UserServiceImplement implements UserService {
 
         return new SuccessResponse<>(entityManager.createQuery(query).getResultList());
     }
+
+    @Override
+    @Transactional
+    public ApiResponse<?> transfer(Long fromUserId, Long toUserId, Long amount) {
+        User from = userRepository.findByIdForUpdate(fromUserId);
+        User to = userRepository.findByIdForUpdate(toUserId);
+
+        if (from.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
+            throw new RuntimeException("Người chuyển tiền không đủ số dư");
+        }
+
+        from.setBalance(from.getBalance().subtract(BigDecimal.valueOf(amount)));
+        to.setBalance(to.getBalance().add(BigDecimal.valueOf(amount)));
+
+        userRepository.save(from);
+        userRepository.save(to);
+
+        return new SuccessResponse<>("Transfer success");
+    }
+
 
 }

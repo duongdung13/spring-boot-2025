@@ -20,4 +20,7 @@ public interface UserService {
     public ApiResponse<?> customQuery();
 
     public ApiResponse<?> criteriaQuery();
+
+    public ApiResponse<?> transfer(Long fromUserId, Long toUserId, Long amount);
+
 }

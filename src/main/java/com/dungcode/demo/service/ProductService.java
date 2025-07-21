@@ -6,6 +6,7 @@ import com.dungcode.demo.posgresql.entity.Product;
 
 public interface ProductService {
     public ApiResponse<?> createProduct(ProductCreateRequest request);
+
     public Product getProductById(Long id);
 
     public Product updateProduct(Long id, Product request);
@@ -15,4 +16,6 @@ public interface ProductService {
     public ApiResponse<?> setCache(Long id);
 
     public ApiResponse<?> getCache(Long id);
+
+    public ApiResponse<?> purchaseProduct(Long productId);
 }
