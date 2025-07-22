@@ -3,6 +3,7 @@ package com.dungcode.demo.config;
 import com.dungcode.demo.redis.MessagePublisher;
 import com.dungcode.demo.redis.MessageSubscriber;
 import com.dungcode.demo.redis.RedisMessagePublisher;
+import com.dungcode.demo.util.EnvHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -47,7 +48,7 @@ public class CacheConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory("localhost", 6379); // sửa nếu Redis ở host khác
+        return new LettuceConnectionFactory(EnvHelper.getEnv("REDIS_HOST"), Integer.parseInt(EnvHelper.getEnv("REDIS_PORT")));
     }
 
     @Bean
