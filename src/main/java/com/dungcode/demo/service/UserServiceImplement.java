@@ -23,8 +23,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.dungcode.demo.posgresql.repository.UserRepository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
+
+import static java.lang.Thread.sleep;
 
 @Service
 @Slf4j
@@ -146,5 +151,106 @@ public class UserServiceImplement implements UserService {
 
         return new SuccessResponse<>(entityManager.createQuery(query).getResultList());
     }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public ApiResponse<?> demoUpdateBalance() {
+        User userFrom = userRepository.findById(3L).orElseThrow();
+        User userTo = userRepository.findById(2L).orElseThrow();
+
+        userFrom.setBalance(userFrom.getBalance().subtract(BigDecimal.valueOf(1000)));
+        userTo.setBalance(userTo.getBalance().add(BigDecimal.valueOf(1000)));
+
+        // Giảm tiền tài khoản nguồn
+        System.out.println("Giảm tiền tài khoản nguồn");
+        userRepository.save(userFrom);
+
+        System.out.println("!!! Đoạn này ở request khác có thể lấy ra được thông tin của userFrom sau khi giảm tiền nhưng chưa được commit, có thể gây dirty read");
+
+        System.out.println("Thêm tiền tài khoản đích");
+        userRepository.save(userTo);
+
+        return new SuccessResponse<>("Update balance success");
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public ApiResponse<?> demoUpdateBalance2() {
+        User userFrom = userRepository.findById(3L).orElseThrow();
+        System.out.println("Balance of userFrom: " + userFrom.getBalance());
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ✅ THÊM DÒNG NÀY để clear cache
+        entityManager.clear();
+
+        User userFrom2 = userRepository.findById(3L).orElseThrow();
+        System.out.println("Balance after update: " + userFrom2.getBalance());
+
+        return new SuccessResponse<>("Get balance success");
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ApiResponse<?> demoUpdateBalance3() {
+        User userFrom = userRepository.findById(3L).orElseThrow();
+        System.out.println("Balance of userFrom: " + userFrom.getBalance());
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ✅ THÊM DÒNG NÀY để clear cache
+        entityManager.clear();
+
+        User userFrom2 = userRepository.findById(3L).orElseThrow();
+        System.out.println("Balance after update: " + userFrom2.getBalance());
+
+        return new SuccessResponse<>("Get balance success");
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public ApiResponse<?> demoUpdateBalance4() {
+        return new SuccessResponse<>("Get balance success");
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
+    public ApiResponse<?> getBalanceRealTime() {
+
+        User user = userRepository.findById(3L).orElseThrow();
+
+
+        return new SuccessResponse<>(user.getBalance(), "Get balance success", 200);
+    }
+
+
+    @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ApiResponse<?> demoTransferMoney() {
+        // Code validate input this here
+        // ....
+
+        // Find accounts với lock
+        User fromUser = userRepository.findByAccountNumberForUpdate(3)
+                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("From account not found"));
+
+        User toUser = userRepository.findByAccountNumberForUpdate(2)
+                .orElseThrow(() -> new GlobalExceptionHandler.NotFoundException("To account not found"));
+
+        fromUser.setBalance(fromUser.getBalance().subtract(BigDecimal.valueOf(1000)));
+        toUser.setBalance(toUser.getBalance().add(BigDecimal.valueOf(1000)));
+
+
+        return new SuccessResponse<>("Transfer money success");
+    }
+
 
 }

@@ -20,4 +20,16 @@ public interface UserService {
     public ApiResponse<?> customQuery();
 
     public ApiResponse<?> criteriaQuery();
+
+    public ApiResponse<?> demoUpdateBalance();
+
+    public ApiResponse<?> demoUpdateBalance2();
+
+    public ApiResponse<?> demoUpdateBalance3();
+
+    public ApiResponse<?> demoUpdateBalance4();
+
+    public ApiResponse<?> demoTransferMoney();
+
+    public ApiResponse<?> getBalanceRealTime();
 }

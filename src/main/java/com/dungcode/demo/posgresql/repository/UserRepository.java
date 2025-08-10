@@ -2,7 +2,9 @@ package com.dungcode.demo.posgresql.repository;
 
 import com.dungcode.demo.enums.Role;
 import com.dungcode.demo.posgresql.entity.User;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,4 +36,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     Optional<User> findByUsername(String username);
+
+    // Sử dụng SELECT FOR UPDATE để lock row
+    @Query("SELECT a FROM users a WHERE a.id = :id")
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<User> findByAccountNumberForUpdate(@Param("id") Integer id);
 }

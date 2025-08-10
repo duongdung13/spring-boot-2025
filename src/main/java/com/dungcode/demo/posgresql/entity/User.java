@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +31,8 @@ public class User extends AbstractEntity {
     String address;
     LocalDate dob;
     Set<String> roles;
+    @Column(nullable = true)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
