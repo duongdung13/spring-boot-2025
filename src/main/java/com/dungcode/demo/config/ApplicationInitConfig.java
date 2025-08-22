@@ -23,19 +23,19 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                HashSet<String> roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
-                User user = User.builder()
-                        .username("admin")
-                        .password(passwordEncoder.encode("123456"))
-                        .firstName("Duong")
-                        .lastName("Dung")
-                        .dob(LocalDate.parse("1987-04-13"))
-                        .roles(roles)
-                        .build();
-                userRepository.save(user);
-            }
+//            if (userRepository.findByUsername("admin").isEmpty()) {
+//                HashSet<String> roles = new HashSet<String>();
+//                roles.add(Role.ADMIN.name());
+//                User user = User.builder()
+//                        .username("admin")
+//                        .password(passwordEncoder.encode("123456"))
+//                        .firstName("Duong")
+//                        .lastName("Dung")
+//                        .dob(LocalDate.parse("1987-04-13"))
+//                        .roles(roles)
+//                        .build();
+//                userRepository.save(user);
+//            }
         };
     }
 }

@@ -33,7 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**", "/hello/**", "/swagger-ui/**", "/v3/api-docs/**", "/rabbitmq/**", "/orders/**", "/ws/**").permitAll()
+                        .requestMatchers("/auth/**", "/hello/**", "/swagger-ui/**", "/v3/api-docs/**", "/rabbitmq/**", "/orders/**", "/ws/**", "/flyway-products/**").permitAll()
                         .anyRequest().authenticated()
                 );
         httpSecurity.oauth2ResourceServer(oauth2 ->

@@ -16,8 +16,17 @@ spring:
     password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none # "none" manage by flyway
     show-sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+  logging:
+    level:
+    org.hibernate.SQL: debug
+    org.flywaydb.core: info
   servlet:
     multipart:
       max-file-size: 5120KB
