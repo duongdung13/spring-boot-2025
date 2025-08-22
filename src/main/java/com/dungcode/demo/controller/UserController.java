@@ -66,5 +66,36 @@ public class UserController {
     ResponseEntity<?> criteriaQuery() {
         return (userService.criteriaQuery()).responseEntity();
     }
+
+    @PostMapping("/demo-update-balance")
+    ResponseEntity<?> demoUpdateBalance() {
+        return (userService.demoUpdateBalance()).responseEntity();
+    }
+
+    @PostMapping("/demo-update-balance-2")
+    ResponseEntity<?> demoUpdateBalance2() {
+        return (userService.demoUpdateBalance2()).responseEntity();
+    }
+
+    @PostMapping("/demo-update-balance-3")
+    ResponseEntity<?> demoUpdateBalance3() {
+        return (userService.demoUpdateBalance3()).responseEntity();
+    }
+
+    @PostMapping("/demo-update-balance-4")
+    ResponseEntity<?> demoUpdateBalance4() {
+        return (userService.demoUpdateBalance4()).responseEntity();
+    }
+
+    @PostMapping("/demo-transfer-money")
+    ResponseEntity<?> demoTransferMoney() {
+        return (userService.demoTransferMoney()).responseEntity();
+    }
+
+    @PostMapping("/get-balance-real-time")
+    ResponseEntity<?> getBalanceRealTime() {
+        return (userService.getBalanceRealTime()).responseEntity();
+    }
+
 }
 

@@ -23,4 +23,15 @@ public interface UserService {
 
     public ApiResponse<?> transfer(Long fromUserId, Long toUserId, Long amount);
 
+    public ApiResponse<?> demoUpdateBalance();
+
+    public ApiResponse<?> demoUpdateBalance2();
+
+    public ApiResponse<?> demoUpdateBalance3();
+
+    public ApiResponse<?> demoUpdateBalance4();
+
+    public ApiResponse<?> demoTransferMoney();
+
+    public ApiResponse<?> getBalanceRealTime();
 }
