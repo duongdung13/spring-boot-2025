@@ -21,4 +21,9 @@ public class FlywayProductController {
             @PathVariable Long productId) {
         return flywayProductService.getProductComments(productId).responseEntity();
     }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProductWithComments(@PathVariable Long productId) {
+        return flywayProductService.getProductWithComments(productId).responseEntity();
+    }
 }

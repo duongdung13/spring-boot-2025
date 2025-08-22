@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -48,4 +50,8 @@ public class FlywayProduct {
     protected void onUpdate() {
         updatedAt = OffsetDateTime.now();
     }
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private List<FlywayProductComment> comments = new ArrayList<>();
 }

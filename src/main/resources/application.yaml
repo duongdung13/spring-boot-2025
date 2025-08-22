@@ -18,6 +18,7 @@ spring:
     hibernate:
       ddl-auto: none # "none" manage by flyway
     show-sql: true
+    open-in-view: false # false open-in-view custom query để lấy data
   flyway:
     enabled: true
     locations: classpath:db/migration
