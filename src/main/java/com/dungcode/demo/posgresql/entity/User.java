@@ -31,8 +31,6 @@ public class User extends AbstractEntity {
     String address;
     LocalDate dob;
     Set<String> roles;
-    @Column(nullable = true)
-    private BigDecimal balance = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(precision = 19, scale = 4)
