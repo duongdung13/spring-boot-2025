@@ -37,6 +37,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // tương đương SELECT FOR UPDATE
+    @Query("SELECT u FROM users u WHERE u.id = :id")
+    User findByIdForUpdate(@Param("id") Long id);
+  
     // Sử dụng SELECT FOR UPDATE để lock row
     @Query("SELECT a FROM users a WHERE a.id = :id")
     @Lock(LockModeType.PESSIMISTIC_WRITE)

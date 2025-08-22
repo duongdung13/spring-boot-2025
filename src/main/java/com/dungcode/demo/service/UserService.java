@@ -21,6 +21,8 @@ public interface UserService {
 
     public ApiResponse<?> criteriaQuery();
 
+    public ApiResponse<?> transfer(Long fromUserId, Long toUserId, Long amount);
+
     public ApiResponse<?> demoUpdateBalance();
 
     public ApiResponse<?> demoUpdateBalance2();

@@ -34,6 +34,10 @@ public class User extends AbstractEntity {
     @Column(nullable = true)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Builder.Default
+    @Column(precision = 19, scale = 4)
+    BigDecimal balance = BigDecimal.ZERO;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Address> addresses = new ArrayList<>();

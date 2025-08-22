@@ -153,6 +153,25 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
+    @Transactional
+    public ApiResponse<?> transfer(Long fromUserId, Long toUserId, Long amount) {
+        User from = userRepository.findByIdForUpdate(fromUserId);
+        User to = userRepository.findByIdForUpdate(toUserId);
+
+        if (from.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
+            throw new RuntimeException("Người chuyển tiền không đủ số dư");
+        }
+
+        from.setBalance(from.getBalance().subtract(BigDecimal.valueOf(amount)));
+        to.setBalance(to.getBalance().add(BigDecimal.valueOf(amount)));
+
+        userRepository.save(from);
+        userRepository.save(to);
+
+        return new SuccessResponse<>("Transfer success");
+    }
+      
+      
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public ApiResponse<?> demoUpdateBalance() {
         User userFrom = userRepository.findById(3L).orElseThrow();
@@ -231,7 +250,6 @@ public class UserServiceImplement implements UserService {
         return new SuccessResponse<>(user.getBalance(), "Get balance success", 200);
     }
 
-
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ApiResponse<?> demoTransferMoney() {
@@ -251,6 +269,5 @@ public class UserServiceImplement implements UserService {
 
         return new SuccessResponse<>("Transfer money success");
     }
-
 
 }

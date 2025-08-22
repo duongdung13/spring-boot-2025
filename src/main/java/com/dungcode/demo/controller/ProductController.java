@@ -1,6 +1,7 @@
 package com.dungcode.demo.controller;
 
 import com.dungcode.demo.common.SuccessResponse;
+import com.dungcode.demo.dto.request.ProductCreateRequest;
 import com.dungcode.demo.posgresql.entity.Product;
 import com.dungcode.demo.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+
+import static reactor.core.publisher.Mono.delay;
 
 @RestController
 @RequestMapping("/products")
@@ -21,6 +26,11 @@ public class ProductController {
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateRequest product) {
+        return (new SuccessResponse<>((productService.createProduct(product)))).responseEntity();
     }
 
     @GetMapping("/{id}")
@@ -49,4 +59,13 @@ public class ProductController {
         return (productService.getCache(id)).responseEntity();
     }
 
+    @PostMapping("/purchase")
+    public ResponseEntity<?> purchaseProduct(@RequestParam Long productId) {
+        try {
+            Thread.sleep(5000); // Delay 5 giây
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return productService.purchaseProduct(productId).responseEntity();
+    }
 }

@@ -4,11 +4,14 @@ import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
 import com.dungcode.demo.dto.request.AuthenticationRequest;
 import com.dungcode.demo.dto.request.IntrospectRequest;
+import com.dungcode.demo.dto.request.LoginGoogleRequest;
 import com.dungcode.demo.dto.response.AuthenticationResponse;
+import com.dungcode.demo.enums.Role;
 import com.dungcode.demo.posgresql.entity.User;
 import com.dungcode.demo.exception.GlobalExceptionHandler;
 import com.dungcode.demo.posgresql.repository.UserRepository;
 import com.dungcode.demo.util.EnvHelper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -27,16 +30,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+    GoogleTokenVerifier googleTokenVerifier;
 
     public ApiResponse<AuthenticationResponse> authenticate(AuthenticationRequest request) {
         Optional<User> userOptional = this.userRepository.findByUsername(request.getUsername());
@@ -115,4 +116,51 @@ public class AuthenticationService {
         return new SuccessResponse<>(result);
 
     }
+
+    public ApiResponse<AuthenticationResponse> loginGoogle(LoginGoogleRequest request) {
+        try {
+            // Verify Google ID Token
+            GoogleIdToken.Payload payload = googleTokenVerifier.verifyToken(request.getId_token());
+
+            if (payload == null) {
+                throw new GlobalExceptionHandler.BadRequestCustomException("Invalid Google ID Token");
+            }
+
+            if (!(boolean) payload.get("aud").equals(EnvHelper.getEnv("GOOGLE_CLIENT_ID"))) {
+                throw new GlobalExceptionHandler.BadRequestCustomException("Invalid Google ID Token (aud)");
+            }
+
+            String email = payload.getEmail();
+            Optional<User> userOptional = this.userRepository.findByUsername(email);
+
+            User user = userOptional.orElseGet(() -> createNewUser(email, payload));
+
+            String token = generateTokenJWT(user);
+
+            return new SuccessResponse<>(AuthenticationResponse.builder()
+                    .authenticated(true)
+                    .username(user.getUsername())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .token(token)
+                    .build());
+        } catch (Exception e) {
+            throw new GlobalExceptionHandler.BadRequestCustomException("Authentication failed: " + e.getMessage());
+        }
+    }
+
+    private User createNewUser(String email, GoogleIdToken.Payload payload) {
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+
+        User newUser = User.builder()
+                .username(email)
+                .firstName((String) payload.get("given_name"))
+                .lastName((String) payload.get("family_name"))
+                .roles(roles)
+                .build();
+
+        return userRepository.save(newUser);
+    }
+
 }

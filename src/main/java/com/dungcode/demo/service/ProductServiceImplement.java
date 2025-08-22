@@ -2,8 +2,12 @@ package com.dungcode.demo.service;
 
 import com.dungcode.demo.common.ApiResponse;
 import com.dungcode.demo.common.SuccessResponse;
+import com.dungcode.demo.dto.request.ProductCreateRequest;
 import com.dungcode.demo.posgresql.entity.Product;
+import com.dungcode.demo.posgresql.entity.ProductComment;
+import com.dungcode.demo.posgresql.repository.ProductCommentRepository;
 import com.dungcode.demo.posgresql.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,7 +20,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductServiceImplement implements ProductService {
     private final ProductRepository productRepository;
+    private final ProductCommentRepository productCommentRepository;
     private final CacheService cacheService;
+
+    @Override
+    @Transactional
+    public ApiResponse<?> createProduct(ProductCreateRequest request) {
+        Product product = Product.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .build();
+        Product savedProduct = productRepository.save(product);
+
+        if (request.getName().equals("Iphone 11")) {
+            throw new RuntimeException("Iphone 11 is not allowed to be created");
+        }
+
+        ProductComment comment = ProductComment.builder()
+                .comment("Initial comment for product " + savedProduct.getName())
+                .authorName("System")
+                .productId(savedProduct.getId())
+                .build();
+        ProductComment savedProductComment = productCommentRepository.save(comment);
+
+        return new SuccessResponse<>(savedProduct);
+    }
 
     @Override
     @Cacheable(value = "products", key = "#id")
@@ -59,5 +88,20 @@ public class ProductServiceImplement implements ProductService {
         }
 
         return new SuccessResponse<>(product);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<?> purchaseProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        if (product.getStock() > 0) {
+            product.setStock(product.getStock() - 1);
+            productRepository.save(product);
+            log.info("Product purchased successfully, remaining stock: {}", product.getStock());
+            return new SuccessResponse<>("Mua thành công");
+        } else {
+            log.warn("Product out of stock for productId: {}", productId);
+            return new SuccessResponse<>("Hết hàng");
+        }
     }
 }
